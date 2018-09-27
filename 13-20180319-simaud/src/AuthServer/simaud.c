@@ -10,7 +10,7 @@
 #include "simaudauthority.h"
 #include "simaudauthserver.h"
 #include "simaudnetlink.h"
-#include "simaudmqconsumer.h"
+
 
 int nfds = 0;
 
@@ -55,7 +55,6 @@ int main (int argc, char **argv){
 	// select test
 	int retval;
 	int skfd, inofd, nlfd, mqfd;
-	amqp_connection_state_t conn;
 	char buff[4096];
 	fd_set rfds, cpy_fds;
 	int len;
@@ -112,9 +111,6 @@ int main (int argc, char **argv){
 			}
 			else if (FD_ISSET(nlfd, &rfds)){	// msg from kernel
 				simaud_netlink_handle(nlfd);
-			}
-			else if (FD_ISSET(mqfd, &rfds)){ // msg from controller
-				topic_consumer(conn);
 			}
 			else {
 				printf("Unkonw descriptor.\n");
