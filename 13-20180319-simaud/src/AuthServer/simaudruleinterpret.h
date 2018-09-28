@@ -17,6 +17,11 @@ typedef struct Rule {
 	Parameter *head; //para list
 } Rule;
 
+/* Utilities */
+/* return the position of num-th colon in str. */
+int get_colon_pos(int num, char *str);
+
+/* RULE */
 Rule *simaud_create_rule(char *str);
 void simaud_delete_rule(Rule *r);
 

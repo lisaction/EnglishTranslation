@@ -5,11 +5,10 @@
 #include "simaudruleinterpret.h"
 
 /* Rule */
-/* Make para a list */
 
 /* 0 - no colon or other errors.
  * 1 ~ - the position of num-th colon in str.*/
-static int get_colon_pos(int num, char *str){
+int get_colon_pos(int num, char *str){
 	int i, n, pos=0, len;
 	len = strlen(str);
 	for (i=0,n=0;n<num&&i<len;i++){

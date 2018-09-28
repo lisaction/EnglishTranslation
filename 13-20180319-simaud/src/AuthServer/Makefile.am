@@ -15,6 +15,7 @@ libsimau_la_SOURCES =				\
 				simaudnetlink.h			simaudnetlink.c 	\
 				simaudrulefile.h		simaudrulefile.c	\
 				simaudruleinterpret.h	simaudruleinterpret.c\
+				simaudrequest.h			simaudrequest.c		\
 					$(NULL)
 
 libsimau_la_LDFLAGS = 				\

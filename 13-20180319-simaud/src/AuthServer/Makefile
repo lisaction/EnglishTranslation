@@ -109,7 +109,7 @@ libsimau_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__objects_1 =
 am_libsimau_la_OBJECTS = simaudauthority.lo simaudauthserver.lo \
 	simaudnetlink.lo simaudrulefile.lo simaudruleinterpret.lo \
-	$(am__objects_1)
+	simaudrequest.lo $(am__objects_1)
 libsimau_la_OBJECTS = $(am_libsimau_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -321,6 +321,7 @@ libsimau_la_SOURCES = \
 				simaudnetlink.h			simaudnetlink.c 	\
 				simaudrulefile.h		simaudrulefile.c	\
 				simaudruleinterpret.h	simaudruleinterpret.c\
+				simaudrequest.h			simaudrequest.c		\
 					$(NULL)
 
 libsimau_la_LDFLAGS = \
@@ -444,6 +445,7 @@ include ./$(DEPDIR)/simaud.Po
 include ./$(DEPDIR)/simaudauthority.Plo
 include ./$(DEPDIR)/simaudauthserver.Plo
 include ./$(DEPDIR)/simaudnetlink.Plo
+include ./$(DEPDIR)/simaudrequest.Plo
 include ./$(DEPDIR)/simaudrulefile.Plo
 include ./$(DEPDIR)/simaudruleinterpret.Plo
 
