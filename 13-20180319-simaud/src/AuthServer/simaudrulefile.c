@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "simaudrulefile.h"
 
@@ -5,7 +6,7 @@
 
 /* FILE *fp; */
 
-static const char *simaud_get_rule_path(){
+static const char *get_rule_path(){
 	/* LOW: improve the function */
 	const char *path = ".rule";
 	return path;
@@ -13,7 +14,7 @@ static const char *simaud_get_rule_path(){
 
 /* Open file to check rules when there is a request */
 bool simaud_open_rule_file(FILE *fp){
-	char *path = simaud_get_rule_path();
+	const char *path = get_rule_path();
 	fp = fopen(path, "r");
 	if (fp == NULL){
 		fprintf (stderr, "Error: Open rule file.\n");
@@ -43,8 +44,10 @@ char *simaud_read_line(FILE *fp){
 	fgets(line, sizeof(line), fp);
 	/* error when reading */
 	if (ferror(fp)){
+		fprintf (stderr, "Error: Read rule from file.\n");
 		return NULL;
 	}
 
+	/* return local variable warning. */
 	return line;
 }

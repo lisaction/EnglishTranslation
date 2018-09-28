@@ -13,6 +13,8 @@ libsimau_la_SOURCES =				\
 				simaudauthority.h		simaudauthority.c	\
 				simaudauthserver.h		simaudauthserver.c	\
 				simaudnetlink.h			simaudnetlink.c 	\
+				simaudrulefile.h		simaudrulefile.c	\
+				simaudruleinterpret.h	simaudruleinterpret.c\
 					$(NULL)
 
 libsimau_la_LDFLAGS = 				\

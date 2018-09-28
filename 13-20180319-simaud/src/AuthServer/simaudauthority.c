@@ -147,7 +147,6 @@ static struct Simau_Rule *rule_create_from_str(char *str){
 	rule->res = res;
 	rule->id = id;
 
-	//TODO: if there no more para??
 	//TODO: if the variable is shorter than reading string?
 	while (sscanf(str+pos,"%[^;\n];%[^;\n];",key, value) == 2){
 		struct Para_node *para = malloc (sizeof(struct Para_node));
