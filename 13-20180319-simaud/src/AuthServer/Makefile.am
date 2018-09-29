@@ -11,7 +11,7 @@ noinst_LTLIBRARIES=libsimau.la
 libsimau_la_SOURCES =				\
 				simaud.h			\
 				simaudauthority.h		simaudauthority.c	\
-				simaudauthserver.h		simaudauthserver.c	\
+				simaudauthif.h			simaudauthif.c	\
 				simaudnetlink.h			simaudnetlink.c 	\
 				simaudrulefile.h		simaudrulefile.c	\
 				simaudruleinterpret.h	simaudruleinterpret.c\

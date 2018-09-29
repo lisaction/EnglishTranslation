@@ -107,7 +107,7 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libsimau_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__objects_1 =
-am_libsimau_la_OBJECTS = simaudauthority.lo simaudauthserver.lo \
+am_libsimau_la_OBJECTS = simaudauthority.lo simaudauthif.lo \
 	simaudnetlink.lo simaudrulefile.lo simaudruleinterpret.lo \
 	simaudrequest.lo $(am__objects_1)
 libsimau_la_OBJECTS = $(am_libsimau_la_OBJECTS)
@@ -317,7 +317,7 @@ noinst_LTLIBRARIES = libsimau.la
 libsimau_la_SOURCES = \
 				simaud.h			\
 				simaudauthority.h		simaudauthority.c	\
-				simaudauthserver.h		simaudauthserver.c	\
+				simaudauthif.h			simaudauthif.c	\
 				simaudnetlink.h			simaudnetlink.c 	\
 				simaudrulefile.h		simaudrulefile.c	\
 				simaudruleinterpret.h	simaudruleinterpret.c\
@@ -442,8 +442,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/simaud.Po
+include ./$(DEPDIR)/simaudauthif.Plo
 include ./$(DEPDIR)/simaudauthority.Plo
-include ./$(DEPDIR)/simaudauthserver.Plo
 include ./$(DEPDIR)/simaudnetlink.Plo
 include ./$(DEPDIR)/simaudrequest.Plo
 include ./$(DEPDIR)/simaudrulefile.Plo

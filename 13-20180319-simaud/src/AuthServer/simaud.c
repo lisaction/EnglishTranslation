@@ -6,9 +6,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <simaudauthif.h>
 
 #include "simaudauthority.h"
-#include "simaudauthserver.h"
 #include "simaudnetlink.h"
 
 
@@ -21,7 +21,7 @@ int max (int a, int b){
 void on_sigint(int iSigNum){
 	for (int i=0;i<nfds;i++)
 		close(i);
-	remove(SOCK_PATH);
+	//remove(SOCK_PATH);
 	exit(1);
 }
 
@@ -90,7 +90,7 @@ int main (int argc, char **argv){
 			perror("select error");
 		else if (retval){
 			if (FD_ISSET(skfd, &rfds)){	//skfd is ready
-				simaud_accept_and_send(skfd);
+				simaud_accept_socket(skfd);
 			}
 			else if (FD_ISSET(inofd, &rfds)){ // file is change
 				len = read(inofd, buff, sizeof(buff));
