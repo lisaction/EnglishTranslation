@@ -107,8 +107,9 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libsimau_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__objects_1 =
-am_libsimau_la_OBJECTS = simauduserif.lo simaudrulefile.lo \
-	simaudruleinterpret.lo simaudrequest.lo $(am__objects_1)
+am_libsimau_la_OBJECTS = simauduserif.lo simaudkernelif.lo \
+	simaudrulefile.lo simaudruleinterpret.lo simaudrequest.lo \
+	$(am__objects_1)
 libsimau_la_OBJECTS = $(am_libsimau_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -315,6 +316,7 @@ NULL =
 noinst_LTLIBRARIES = libsimau.la
 libsimau_la_SOURCES = \
 				simauduserif.h			simauduserif.c	\
+				simaudkernelif.h		simaudkernelif.c	\
 				simaudrulefile.h		simaudrulefile.c	\
 				simaudruleinterpret.h	simaudruleinterpret.c\
 				simaudrequest.h			simaudrequest.c		\
@@ -438,6 +440,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/simaud.Po
+include ./$(DEPDIR)/simaudkernelif.Plo
 include ./$(DEPDIR)/simaudrequest.Plo
 include ./$(DEPDIR)/simaudrulefile.Plo
 include ./$(DEPDIR)/simaudruleinterpret.Plo

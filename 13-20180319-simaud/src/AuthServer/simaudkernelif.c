@@ -7,7 +7,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include "simaudkernelif.h"
 #include "simauduserif.h"
+#include "simaudruleinterpret.h"
+
+/* Debug kernel is a tough task.
+ * So, I edit this file as little as possible. */
 
 // netlink family defined by myself in kernel (polkit.h)
 #define NETLINK_POLKITD 23
@@ -45,7 +50,7 @@ int simaud_create_netlink_fd (){
 
 /* 1 - success
  * -1 - failure */
-int *simaud_recvfrom_kernel (int nlfd, char *data){
+int simaud_recvfrom_kernel (int nlfd, char *data){
 	int ret;
 	struct nlmsghdr *nlh = NULL;
 
@@ -70,10 +75,10 @@ int *simaud_recvfrom_kernel (int nlfd, char *data){
 	return 1;
 }
 
-static Rule *create_req_for_kernel(char *action_id, char *arg_msg){
+Request *create_req_for_kernel(char *action_id, char *arg_msg){
 	int pos,s,len;
 	int num; // there is a arg 'len' in the string, we have to kick it off
-	char str[LEN_OF_UNIT*15];
+	char str[RULE_LEN];
 	memset(str,0,sizeof(str));
 
 	//joint the string to:
@@ -98,10 +103,10 @@ static Rule *create_req_for_kernel(char *action_id, char *arg_msg){
 	}
 
 	printf ("str=%s\n",str);
-	return req_create(str);
+	return simaud_create_req(str);
 }
 
-static int send_to_kernel(int nlfd, int cmd, int seq, int auth){
+int send_to_kernel(int nlfd, int cmd, int seq, int auth){
 	struct sockaddr_nl dest_addr;
 	struct nlmsghdr *nlh = NULL;
 	char message[MSG_LEN];
@@ -139,32 +144,4 @@ static int send_to_kernel(int nlfd, int cmd, int seq, int auth){
 
 	free(nlh);
 	return 0;
-}
-
-
-void simaud_netlink_handle(int nlfd){
-	char data[MSG_LEN];
-	int len, num, seq, r;
-	char action_id[LEN_OF_UNIT];
-
-	struct Simau_Rule *req = NULL;
-	if (recv_from_kernel(nlfd, data) > 0){
-		printf ("data is %s\n", data);
-		// seq is the id of this req
-		// num is the number of arg, for compatibility, reserve
-		// len is the offset of arg
-		sscanf(data, "%d %s %d %d\n",&seq, action_id, &num, &len);
-
-		// operate on this string
-		req = create_req_for_kernel(action_id, data+len);
-	}
-
-	num = 0;
-	if (req) {
-		simaud_print_rule(req,stdout);
-		num = simaud_authorize(req);
-	}
-	if (num == 1)
-		send_to_kernel(nlfd,2,seq,1);
-	else send_to_kernel(nlfd,2,seq,0);
 }

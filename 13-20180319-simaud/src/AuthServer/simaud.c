@@ -8,6 +8,7 @@
 #include <unistd.h>
 //#include "simaudkernelif.h"
 #include "simauduserif.h"
+#include "simaudkernelif.h"
 #include "simaudruleinterpret.h"
 #include "simaudrulefile.h"
 #include "simaudrequest.h"
@@ -69,8 +70,8 @@ static void simaud_authorize_userspace(int fd){
 		return;
 	}
 
-	/* what is the "recvBuff" look like? */
-	req=simaud_create_req(recvBuff);
+	/* the "recvBuff" look like: actino_id;p1;v1;p2;v2; */
+	req = simaud_create_req(recvBuff);
 
 	/* compare*/
 	rv = simaud_compare_rule(req);
@@ -82,6 +83,37 @@ static void simaud_authorize_userspace(int fd){
 	printf("*INFO*: Request %s asks for authorization. Result:%d.\n", req->action_id, rv);
 	free(req);
 }
+
+void simaud_authorize_kernel(int nlfd){
+	char data[RULE_LEN];
+	int len, num, seq, r;
+	char action_id[LEN_OF_UNIT];
+
+	struct Request *req = NULL;
+	if (simaud_recvfrom_kernel(nlfd, data) > 0){
+		printf ("data is %s\n", data);
+		// seq is the id of this req
+		// num is the number of arg, for compatibility, reserve
+		// len is the offset of arg
+		sscanf(data, "%d %s %d %d\n",&seq, action_id, &num, &len);
+
+		// operate on this string
+		req = create_req_for_kernel(action_id, data+len);
+	}
+
+	num = 0;
+	if (req) {
+		num = simaud_compare_rule(req);
+	}
+	if (num == 1)
+		send_to_kernel(nlfd,2,seq,1);
+	else send_to_kernel(nlfd,2,seq,0);
+
+	/* print message */
+	printf("*INFO*: Request %s asks for authorization. Result:%d.\n", req->action_id, num);
+	free(req);
+}
+
 
 int main (int argc, char **argv){
 	int retval;
@@ -111,10 +143,9 @@ int main (int argc, char **argv){
 	nfds = max (nfds, skfd);
 
 	// netlink fd
-/*	nlfd = simaud_create_netlink_fd();
+	nlfd = simaud_create_netlink_fd();
 	FD_SET(nlfd, &rfds);
-	nfds = max (nfds, nlfd);*/
-
+	nfds = max (nfds, nlfd);
 
 	// save initial state
 	cpy_fds = rfds;
@@ -127,9 +158,9 @@ int main (int argc, char **argv){
 			if (FD_ISSET(skfd, &rfds)){	//skfd is ready
 				simaud_authorize_userspace(skfd);
 			}
-/*			else if (FD_ISSET(nlfd, &rfds)){// msg from kernel
-				simaud_netlink_handle(nlfd);
-			}*/
+			else if (FD_ISSET(nlfd, &rfds)){// msg from kernel
+				simaud_authorize_kernel(nlfd);
+			}
 			else {
 				fprintf (stderr, "Warning: Unknown descriptor.\n");
 			}
