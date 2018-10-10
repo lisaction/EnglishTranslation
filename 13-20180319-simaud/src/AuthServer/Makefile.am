@@ -9,10 +9,7 @@ NULL =
 noinst_LTLIBRARIES=libsimau.la
 
 libsimau_la_SOURCES =				\
-				simaud.h			\
-				simaudauthority.h		simaudauthority.c	\
-				simaudauthif.h			simaudauthif.c	\
-				simaudnetlink.h			simaudnetlink.c 	\
+				simauduserif.h			simauduserif.c	\
 				simaudrulefile.h		simaudrulefile.c	\
 				simaudruleinterpret.h	simaudruleinterpret.c\
 				simaudrequest.h			simaudrequest.c		\

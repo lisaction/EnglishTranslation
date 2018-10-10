@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "simaudauthority.h"
+#include "simauduserif.h"
 
 // netlink family defined by myself in kernel (polkit.h)
 #define NETLINK_POLKITD 23
@@ -17,17 +17,16 @@
 #define MSG_LEN 700
 
 int simaud_create_netlink_fd (){
-	int skfd;
+	int nlfd;
 	/* address */
 	struct sockaddr_nl local;
 	/* temp return */
 	int ret;
 
 	/* Create socket */
-	skfd = socket (AF_NETLINK, SOCK_RAW, NETLINK_POLKITD);
-	if (skfd == -1)	{
-		perror("netlink socket");
-		return -1;
+	nlfd = socket (AF_NETLINK, SOCK_RAW, NETLINK_POLKITD);
+	if (nlfd == -1)	{
+		die_on_error("create netlink socket");
 	}
 
 	/* fill the local address */
@@ -37,23 +36,23 @@ int simaud_create_netlink_fd (){
 	local.nl_groups = 0;
 
 	/* bind the socket with the local address */
-	ret = bind (skfd, (struct sockaddr *)&local, sizeof(local));
+	ret = bind (nlfd, (struct sockaddr *)&local, sizeof(local));
 	if (ret == -1 )	{
-		perror("netlink bind");
-		close(skfd);
-		return -1;
+		die_on_error("bind netlink socket");
 	}
-	return skfd;
+	return nlfd;
 }
 
-static int recv_from_kernel (int nlfd, char *data){
+/* 1 - success
+ * -1 - failure */
+int *simaud_recvfrom_kernel (int nlfd, char *data){
 	int ret;
 	struct nlmsghdr *nlh = NULL;
 
 	/* allocate space for the msg */
-	nlh = (struct nlmsghdr *) malloc (NLMSG_SPACE(MSG_LEN));
+	nlh = (struct nlmsghdr *) malloc ( NLMSG_SPACE(MSG_LEN));
 	if (!nlh){
-		perror("malloc for nlh");
+		perror("allocate space for nlh");
 		return -1;
 	}
 	memset (nlh, 0, NLMSG_SPACE(MSG_LEN));
@@ -67,18 +66,14 @@ static int recv_from_kernel (int nlfd, char *data){
 	}
 
 	strncpy(data, (char *)NLMSG_DATA(nlh), MSG_LEN);
-	/* printf ("Recv msg: %s, p=%p\n", data, nlh); */
 	free(nlh);
-
-	/* if (num%2 ==0 && len < MSG_LEN) */
-	/* return auth_details_to_gvariant(num,data+len); */
 	return 1;
 }
 
-static struct Simau_Rule *create_req_for_kernel(char *action_id, char *arg_msg){
+static Rule *create_req_for_kernel(char *action_id, char *arg_msg){
 	int pos,s,len;
 	int num; // there is a arg 'len' in the string, we have to kick it off
-	char str[LEN_OF_UNIT_IN_RULE*15];
+	char str[LEN_OF_UNIT*15];
 	memset(str,0,sizeof(str));
 
 	//joint the string to:
@@ -106,7 +101,7 @@ static struct Simau_Rule *create_req_for_kernel(char *action_id, char *arg_msg){
 	return req_create(str);
 }
 
-static int send_to_kernel(int skfd, int cmd, int seq, int auth){
+static int send_to_kernel(int nlfd, int cmd, int seq, int auth){
 	struct sockaddr_nl dest_addr;
 	struct nlmsghdr *nlh = NULL;
 	char message[MSG_LEN];
@@ -135,7 +130,7 @@ static int send_to_kernel(int skfd, int cmd, int seq, int auth){
 	memcpy (NLMSG_DATA(nlh), message, strlen(message)+1);
 
 	/* Send message */
-	ret = sendto (skfd, nlh, nlh->nlmsg_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+	ret = sendto (nlfd, nlh, nlh->nlmsg_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
 	if (!ret){
 		perror ("error sent in send_to_kernel");
 		free(nlh);
@@ -150,7 +145,7 @@ static int send_to_kernel(int skfd, int cmd, int seq, int auth){
 void simaud_netlink_handle(int nlfd){
 	char data[MSG_LEN];
 	int len, num, seq, r;
-	char action_id[LEN_OF_UNIT_IN_RULE];
+	char action_id[LEN_OF_UNIT];
 
 	struct Simau_Rule *req = NULL;
 	if (recv_from_kernel(nlfd, data) > 0){

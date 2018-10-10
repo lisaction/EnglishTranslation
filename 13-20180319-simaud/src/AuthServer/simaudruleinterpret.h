@@ -1,7 +1,9 @@
 #ifndef RULEINTERPRET_H
 #define RULEINTERPRET_H
 
+/* MACRO */
 #define LEN_OF_UNIT 50
+#define RULE_LEN LEN_OF_UNIT*12
 
 typedef struct Parameter {
 	char key[LEN_OF_UNIT+1];

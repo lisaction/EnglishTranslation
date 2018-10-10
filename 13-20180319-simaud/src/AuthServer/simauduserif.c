@@ -1,4 +1,7 @@
+#include "simauduserif.h"
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -6,14 +9,14 @@
 #include <sys/un.h>
 
 #include "simaudrequest.h"
-#include "simaudauthif.h"
+#include "simaudruleinterpret.h"
 
 #define SOCK_PATH "/tmp/simaud-socket"
 #define SIMAU_MAX_LINK 10
 
 /* SOCKET */
 
-static void die_on_error(char const *context){
+void die_on_error(char const *context){
 	perror(context);
 	exit(1);
 }
@@ -61,18 +64,18 @@ int simaud_accept_socket(int skfd){
 	return cfd;
 }
 
-/* return received string - successful.
- * NULL - fail. */
-char *simaud_read_socket(int cfd){
-	char recvBuff[LEN_OF_UNIT*10+2];
+/* >0 : the number of bytes received.
+ * -1 : fail. */
+int simaud_read_socket(int cfd, char *recvBuff){
 	int n;
 	/* read message */
-	if ( (n=recv(cfd, recvBuff,sizeof(recvBuff), 0)) > 0){
+	/* while, sizeof(recvBuff)=8 */
+	if ( (n=recv(cfd, recvBuff, RULE_LEN, 0)) > 0){
 		recvBuff[n] = '\0';
-		return recvBuff;
+		return n;
 	}
 	perror ("read socket");
-	return NULL;
+	return -1;
 }
 
 /* Send the result.
@@ -96,4 +99,8 @@ void simaud_send_authres(int cfd, int res){
 void simaud_close_connection(int cfd){
 	if (close(cfd) < 0)
 		perror("close connection");
+}
+
+void simaud_delete_socketlink(){
+	unlink(SOCK_PATH);
 }

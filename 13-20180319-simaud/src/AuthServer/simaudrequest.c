@@ -28,7 +28,13 @@ Request *simaud_create_req(char *str){
 
 	/* get the colon pos before para */
 	pos = get_colon_pos(1, str);
-	assert(pos != 0);
+
+	/* assert(pos != 0); */
+	if (pos == 0){
+		fprintf (stderr, "Warning: There is no colon in req string.\n");
+		return NULL;
+	}
+
 	if (pos == len){
 		/* no parameters */
 		return r;

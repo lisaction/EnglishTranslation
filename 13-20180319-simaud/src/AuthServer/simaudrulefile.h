@@ -1,10 +1,10 @@
 #ifndef RULEFILE_H
 #define RULEFILE_H
 
-#include <stdbool.h>
+#include <stdio.h>
 
-bool simaud_open_rule_file(FILE *fp);
+FILE *simaud_open_rule_file();
 void simaud_close_file(FILE *fp);
-char *simaud_read_line(FILE *fp);
+int simaud_read_line(char *line, FILE *fp);
 
 #endif
