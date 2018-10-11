@@ -1,1 +1,1 @@
-SUBDIRS = AuthServer
+SUBDIRS = AuthServer MqClient

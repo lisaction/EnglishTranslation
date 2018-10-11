@@ -34,6 +34,8 @@
  * ***** END LICENSE BLOCK *****
  */
 
+#include "mqutils.h"
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,10 +43,6 @@
 #include <ctype.h>
 
 #include <stdint.h>
-#include <amqp.h>
-#include <amqp_framing.h>
-
-#include "simaudmqutils.h"
 
 void die(const char *fmt, ...)
 {
@@ -149,7 +147,7 @@ static int rows_eq(int *a, int *b)
   return 1;
 }
 
-void amqp_dump(void const *buffer, size_t len)
+static void amqp_dump(void const *buffer, size_t len)
 {
   unsigned char *buf = (unsigned char *) buffer;
   long count = 0;
@@ -191,4 +189,19 @@ void amqp_dump(void const *buffer, size_t len)
   if (numinrow != 0) {
     printf("%08lX:\n", count);
   }
+}
+
+void dump_envelope(amqp_envelope_t envelope){
+	printf("Delivery %u, exchange %.*s routingkey %.*s\n",
+			(unsigned) envelope.delivery_tag,
+			(int) envelope.exchange.len, (char *) envelope.exchange.bytes,
+			(int) envelope.routing_key.len, (char *) envelope.routing_key.bytes);
+
+	if (envelope.message.properties._flags & AMQP_BASIC_CONTENT_TYPE_FLAG)	{
+		printf("Content-type: %.*s\n",
+				(int) envelope.message.properties.content_type.len,
+				(char *) envelope.message.properties.content_type.bytes);
+	}
+
+	amqp_dump(envelope.exchange.bytes, envelope.exchange.len);
 }

@@ -1,8 +1,9 @@
-#include <config.h>
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <math.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -13,9 +14,9 @@
 #include "simaudrulefile.h"
 #include "simaudrequest.h"
 
-static int max (int a, int b){
+/*static int max (int a, int b){
 	return a>b?a:b;
-}
+}*/
 
 void on_sigexit(int iSigNum){
 	void simaud_delete_socketlink();
