@@ -9,24 +9,28 @@ NULL =
 noinst_LTLIBRARIES=libmqclient.la
 
 libmqclient_la_SOURCES =				\
-				messagequeue.c		messagequeue.h\
-				mqcommand.c		mqcommand.h	\
-				mqutils.c			mqutils.h	\
+				messagequeue.c		messagequeue.h 	\
+				mqcommand.c			mqcommand.h		\
+				mqutils.c			mqutils.h		\
 					$(NULL)
 
 libmqclient_la_LDFLAGS = 				\
-				$(RABBITMQ_LDFLAGS)	\
+				$(RABBITMQ_LDFLAGS)		\
+				$(SIMAUD_LDFLAGS)		\
 				$(NULL)
 
-libmqclient_la_LIBADD = 				\
+libmqclient_la_LIBADD = 			\
 				$(RABBITMQ_LIBS)	\
 				$(NULL)			
+
 
 # --------------------------------------------------------
 bin_PROGRAMS = mqclient
 mqclient_SOURCES = MqClient.c
 
-mqclient_LDADD = libmqclient.la
+mqclient_LDADD = libmqclient.la		\
+				$(top_builddir)/src/AuthServer/libsimau.la	\
+				$(NULL)
 
 # --------------------------------------------------------
 

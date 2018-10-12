@@ -7,16 +7,15 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-//#include "simaudkernelif.h"
 #include "simauduserif.h"
 #include "simaudkernelif.h"
 #include "simaudruleinterpret.h"
 #include "simaudrulefile.h"
 #include "simaudrequest.h"
 
-/*static int max (int a, int b){
+static int max (int a, int b){
 	return a>b?a:b;
-}*/
+}
 
 void on_sigexit(int iSigNum){
 	void simaud_delete_socketlink();

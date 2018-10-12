@@ -7,6 +7,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "src/AuthServer/simaudrulefile.h"
+#include "src/AuthServer/simaudruleinterpret.h"
 #include "mqcommand.h"
 
 /* utils : get local ip address */
@@ -76,23 +78,66 @@ int op_cmd0(char *msg, char *send_str){
 }
 
 //001: delete rule
-//read one after and and rewrite one by one
+//read one after one and rewrite one by one
 //msg:rule_id
 int op_cmd1(char *msg){
-	int ruleid;
-	sscanf(msg,"%d", &ruleid);
+	FILE *fp, *fpw;
+	int rid, rv, ff;
+	char line[RULE_LEN];
+	long file_pos;
+	Rule *r;
 
+	fp = simaud_open_rule_file();
+	fpw = simaud_open_rule_for_write();
+
+	sscanf(msg,"%d", &rid);
+
+	ff = 0;
+	file_pos = ftell(fp);
+	rv = simaud_read_line(line, fp);
+	while(rv>0) {
+		if (ff){ // have found the rule
+			simaud_write_line(line, fpw);
+		}
+		else { // haven't found the rule yet.
+			r = simaud_create_rule(line);
+		}
+
+		if (r){
+			if (!ff && r->id == rid){ // find the rule
+				ff = 1;
+				fseek(fpw, file_pos, SEEK_SET);
+			}
+			simaud_delete_rule(r);
+		}
+		file_pos = ftell(fp);
+		rv = simaud_read_line(line, fp);
+	}
+
+	//can we write EOF to file?
+	// ascii 0 = null
+	fputc(0, fpw);
+	simaud_close_file(fp);
+	simaud_close_file(fpw);
 	return 0;
 }
 
 //010: add rule
 //msg: 1;cas.iie.pam.login;pam-rule;0;uid=1000:user=lin:\n
 int op_cmd2(char *msg){
+	FILE *fpw;
+	fpw = simaud_open_rule_for_write();
+	fseek(fpw, 0L, SEEK_END); //set pos to tail
+	// Is there an enter?
+	simaud_write_line(msg, fpw);
+	simaud_close_file(fpw);
 	return 0;
 }
 
 // 011: modify rule
 // msg: 1;cas.iie.pam.login;pam-rule;0;uid=1000:user=lin:\n
 int op_cmd3(char *msg){
+	op_cmd1(msg); //delete the rule
+	op_cmd2(msg); //add new rule
 	return 0;
 }
