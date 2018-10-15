@@ -25,7 +25,7 @@ FILE *simaud_open_rule_file(){
 /* Open file to write */
 FILE *simaud_open_rule_for_write(){
 	FILE *fp;
-	fp = fopen(get_rule_path(), "w");
+	fp = fopen(get_rule_path(), "r+");
 	if (fp == NULL)
 		fprintf (stderr, "Error: %s\n", strerror(errno));
 	return fp;
@@ -34,14 +34,9 @@ FILE *simaud_open_rule_for_write(){
 /* Write a line to file. */
 int simaud_write_line(char *line, FILE *fp){
 
-	/* End of the file */
-	if (feof(fp)){
-		return 0;
-	}
-
-	/* clear error before read */
-	clearerr(fp);
-	/* Rule regulator will verify the rule for us */
+	/* check whether line is a valid rule */
+	if (strlen(line) < 5)
+		return -1;
 	fputs(line, fp);
 	/* error when reading */
 	if (ferror(fp)){

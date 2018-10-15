@@ -79,7 +79,7 @@ int op_cmd0(char *msg, char *send_str){
 
 //001: delete rule
 //read one after one and rewrite one by one
-//msg:rule_id
+//msg:rule_id;\n
 int op_cmd1(char *msg){
 	FILE *fp, *fpw;
 	int rid, rv, ff;
@@ -94,10 +94,14 @@ int op_cmd1(char *msg){
 
 	ff = 0;
 	file_pos = ftell(fp);
+	memset(line, 0, sizeof(line));
 	rv = simaud_read_line(line, fp);
 	while(rv>0) {
 		if (ff){ // have found the rule
-			simaud_write_line(line, fpw);
+			//can we write EOF to file? no ,we can't
+			//the line begin with '0' is an abandoned line
+			fputc('0', fpw);
+			break; // id is unique
 		}
 		else { // haven't found the rule yet.
 			r = simaud_create_rule(line);
@@ -109,21 +113,19 @@ int op_cmd1(char *msg){
 				fseek(fpw, file_pos, SEEK_SET);
 			}
 			simaud_delete_rule(r);
+			r = NULL;
 		}
 		file_pos = ftell(fp);
 		rv = simaud_read_line(line, fp);
 	}
 
-	//can we write EOF to file?
-	// ascii 0 = null
-	fputc(0, fpw);
 	simaud_close_file(fp);
 	simaud_close_file(fpw);
 	return 0;
 }
 
 //010: add rule
-//msg: 1;cas.iie.pam.login;pam-rule;0;uid=1000:user=lin:\n
+//msg: 1;cas.iie.pam.login;pam-rule;0;uid;1000;user;lin;\n
 int op_cmd2(char *msg){
 	FILE *fpw;
 	fpw = simaud_open_rule_for_write();
@@ -135,7 +137,7 @@ int op_cmd2(char *msg){
 }
 
 // 011: modify rule
-// msg: 1;cas.iie.pam.login;pam-rule;0;uid=1000:user=lin:\n
+// msg: 1;cas.iie.pam.login;pam-rule;0;uid;1000;user;lin;\n
 int op_cmd3(char *msg){
 	op_cmd1(msg); //delete the rule
 	op_cmd2(msg); //add new rule

@@ -89,9 +89,9 @@ fail:
 
 void simaud_delete_rule(Rule *r){
 
-	if (r->head == NULL)
+	if (r->head == NULL) // no para
 		free(r);
-	else if (r->head->next == NULL){
+	else if (r->head->next == NULL){ //one para
 		free(r->head);
 		free(r);
 	}
