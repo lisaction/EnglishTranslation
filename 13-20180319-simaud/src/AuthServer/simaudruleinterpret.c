@@ -40,7 +40,7 @@ Rule *simaud_create_rule(char *str){
 
 	if(sscanf(str, "%d;%[^;\n];%[^;\n];%d;",&r->id, r->action_id, r->des, &r->res) != 4){
 		/* fail */
-		fprintf (stderr, "Error: Parse string when create rule.\n");
+		// fprintf (stderr, "Error: Parse string when create rule.\n");
 		return NULL;
 	}
 

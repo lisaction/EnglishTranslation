@@ -39,7 +39,7 @@ FILE *simaud_open_rule_for_write(){
 /* Open temp file to write */
 FILE *simaud_open_tmprule_for_write(){
 	FILE *fp;
-	fp = fopen(get_tmprule_path(), "r+");
+	fp = fopen(get_tmprule_path(), "w");
 	if (fp == NULL)
 		fprintf (stderr, "Error: %s\n", strerror(errno));
 	return fp;

@@ -7,12 +7,13 @@
 
 #define MAX_RULE_NUM 100
 
-/* a is a sorted array */
+/* a is a sorted array; n is the element number in a[] */
 /* 1 - insert
  * -1 - find */
 int find_or_insert(int n, int a[], int v){
 	int i=0, j=n-1;
 	int mid = (i+j)/2;
+	int fc;
 
 	if (n == 0){
 		a[0] = v;
@@ -20,31 +21,37 @@ int find_or_insert(int n, int a[], int v){
 	}
 
 	while (i <= j){
-		if (mid == v) { // find the value
+		fc = mid;
+		if (a[mid] == v) { // find the value
 			return -1;
 		}
-		else if (mid > v){
+		else if (a[mid] > v){
 			j = mid;
 		}
-		else if (mid < v){
+		else if (a[mid] < v){
 			i = mid;
 		}
 		mid = (i+j)/2;
+		// a[fc] has been compared.
+		if (mid == fc ){ // can't find
+			break;
+		}
 	}
 	// didn't find the value
 	i = n;
 	if (a[mid] < v) {// insert after mid
 		while (i > mid){
 			a[i+1]=a[i];
+			i--;
 		}//i==mid
 	}
-	if (a[mid] > v){// insert before mid
+	else if (a[mid] > v){// insert before mid
 		while (i >= mid){
 			a[i+1]=a[i];
+			i--;
 		}//i==mid-1
 	}
 	a[i+1] = v;
-	n++;
 	return 1;
 }
 
@@ -101,5 +108,7 @@ void formatter_write_2newfile(){
 	simaud_close_file(fpt);
 	simaud_remove_file();
 	simaud_rename_tmpfile();
+
+	printf("%d rules has been recorded.\n", n);
 }
 

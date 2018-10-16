@@ -1,0 +1,10 @@
+3;cas.iie.kernel-device.add;usb-device-control;1;manufacturer;Kingston;
+2;cas.iie.kernel-cap.sys-module;kernel-module-rule;1;
+1;cas.iie.pam.login;pam-rule;0;user;lin;uid;1000;
+1;cas.iie.pam.login;pam-rule;0;user;lin;uid;1000;
+
+afadafde
+
+0;cas.iie.kernel-cap.sys-module;kernel-module-rule;1;
+
+154384380734878534785340853484870384758347;cas.iie.kernel-cap.sys-module;kernel-module-rule;1;
