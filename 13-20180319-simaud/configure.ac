@@ -42,5 +42,6 @@ AC_CHECK_FUNCS([gethostname inet_ntoa memset select socket])
 AC_CONFIG_FILES([Makefile
 				 src/Makefile
 				 src/AuthServer/Makefile
+				 src/RuleFormatter/Makefile
 				 src/MqClient/Makefile])
 AC_OUTPUT

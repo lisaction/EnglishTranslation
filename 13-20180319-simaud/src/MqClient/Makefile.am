@@ -16,7 +16,6 @@ libmqclient_la_SOURCES =				\
 
 libmqclient_la_LDFLAGS = 				\
 				$(RABBITMQ_LDFLAGS)		\
-				$(SIMAUD_LDFLAGS)		\
 				$(NULL)
 
 libmqclient_la_LIBADD = 			\

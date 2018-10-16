@@ -7,9 +7,14 @@
 
 /* FILE *fp; */
 
-static const char *get_rule_path(){
+const char *get_rule_path(){
 	/* LOW: improve the function */
 	const char *path = "/home/lin/git/simau-repository/13-20180319-simaud/src/AuthServer/rule";
+	return path;
+}
+
+static const char *get_tmprule_path(){
+	const char *path = "/home/lin/git/simau-repository/13-20180319-simaud/src/AuthServer/rule.tmp";
 	return path;
 }
 
@@ -26,6 +31,15 @@ FILE *simaud_open_rule_file(){
 FILE *simaud_open_rule_for_write(){
 	FILE *fp;
 	fp = fopen(get_rule_path(), "r+");
+	if (fp == NULL)
+		fprintf (stderr, "Error: %s\n", strerror(errno));
+	return fp;
+}
+
+/* Open temp file to write */
+FILE *simaud_open_tmprule_for_write(){
+	FILE *fp;
+	fp = fopen(get_tmprule_path(), "r+");
 	if (fp == NULL)
 		fprintf (stderr, "Error: %s\n", strerror(errno));
 	return fp;
@@ -72,4 +86,12 @@ int simaud_read_line(char *line, FILE *fp){
 
 void simaud_close_file(FILE *fp){
 	fclose(fp);
+}
+
+void simaud_remove_file(){
+	remove(get_rule_path());
+}
+
+void simaud_rename_tmpfile(){
+	rename(get_tmprule_path(), get_rule_path());
 }

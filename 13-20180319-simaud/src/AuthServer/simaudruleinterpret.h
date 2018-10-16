@@ -4,6 +4,7 @@
 /* MACRO */
 #define LEN_OF_UNIT 50
 #define RULE_LEN LEN_OF_UNIT*12
+#define LEN_OF_DES LEN_OF_UNIT*2+1
 
 typedef struct Parameter {
 	char key[LEN_OF_UNIT+1];
@@ -15,7 +16,7 @@ typedef struct Rule {
 	int id;
 	char action_id[LEN_OF_UNIT+1];
 	int res;
-	char des[LEN_OF_UNIT*2+1];
+	char des[LEN_OF_DES];
 	Parameter *head; //para list
 } Rule;
 

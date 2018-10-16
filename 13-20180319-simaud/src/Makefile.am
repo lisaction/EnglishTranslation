@@ -1,1 +1,1 @@
-SUBDIRS = AuthServer MqClient
+SUBDIRS = AuthServer MqClient RuleFormatter
