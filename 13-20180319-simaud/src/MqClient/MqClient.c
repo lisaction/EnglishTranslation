@@ -4,16 +4,18 @@
 
 #include "messagequeue.h"
 #include "mqcommand.h"
+#include "mqutils.h"
 
 int mqclient_handle_message(amqp_connection_state_t conn,
 		amqp_envelope_t *envelope){
 	int cmd, rv;
 	char *send_str;
-	char *data = calloc((int) envelope->exchange.len+1 ,sizeof(char));
-	strncpy(data, (char *)envelope->exchange.bytes, (int) envelope->exchange.len);
+	char *data = calloc((int) envelope->message.body.len+1 ,sizeof(char));
+	char msgid[200];
+	strncpy(data, (char *)envelope->message.body.bytes, (int) envelope->message.body.len);
 
 	// get command code
-	cmd = mqclient_get_command(data);
+	cmd = mqclient_parse_msg(data, msgid);
 	// dispatch
 	switch(cmd){
 	case 0: //read
@@ -29,13 +31,12 @@ int mqclient_handle_message(amqp_connection_state_t conn,
 		rv = op_cmd3(data+CMD_LEN+1);
 		break;
 	default:
+		rv = -1;
 		fprintf(stderr, "Warning: Unknown command.\n");
 	}
 
-	if (envelope->message.properties._flags & AMQP_BASIC_REPLY_TO_FLAG)
-		mqclient_reply_rpc(conn, envelope);
-	if (rv == 2)
-		mqclient_public_2direct(conn, envelope, send_str);
+	//if (rv == 2)
+	mqclient_public_direct(conn, envelope, msgid, "rpc reply");
 
 	if (send_str)
 		free(send_str);
@@ -57,10 +58,10 @@ int main(int argc, char **argv){
 		}
 	}
 
-	conn=mqclient_init_conn();
+	conn = mqclient_init_conn();
 	while (1){
 		/* block to consume */
-		envelope = mqclient_consume_message(conn);
+		envelope = mqclient_consume_topic(conn);
 
 		mqclient_handle_message(conn, envelope);
 		amqp_destroy_envelope(envelope);

@@ -203,5 +203,6 @@ void dump_envelope(amqp_envelope_t envelope){
 				(char *) envelope.message.properties.content_type.bytes);
 	}
 
-	amqp_dump(envelope.exchange.bytes, envelope.exchange.len);
+	//amqp_dump(envelope.exchange.bytes, envelope.exchange.len);
+	amqp_dump(envelope.message.body.bytes, envelope.message.body.len);
 }

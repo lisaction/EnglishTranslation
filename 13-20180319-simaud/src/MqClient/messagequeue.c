@@ -14,7 +14,7 @@
 /* Maybe we need a config file */
 #define HOSTNAME "rabbitmq-server" //the the hostname in /etc/hosts of server we connect to
 #define TOPIC_EXCHANGE "command" //receive exchange
-#define DIRECT_EXCHANGE "echo" //send exchange
+#define DIRECT_EXCHANGE "reply" //send exchange
 #define BINDKEY_BROADCAST "simau"
 #define PORT AMQP_PROTOCOL_PORT
 #define NAME_LEN 100
@@ -82,24 +82,27 @@ amqp_connection_state_t mqclient_init_conn (){
 	die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
 
 	/* check (or declare?) the exchange */
-	amqp_exchange_declare(conn, 1, amqp_cstring_bytes(exchange), amqp_empty_bytes,
-			1,//passive: for client to check whether an exchange exists
+	amqp_exchange_declare(conn, 1, amqp_cstring_bytes(exchange), amqp_cstring_bytes("topic"),
+			//amqp_empty_bytes, exchange type
+			0,//passive: for client to check whether an exchange exists
 			0,//durable: be purged if a rabbitmq server restarts
 			0,//auto_delete: the exchange is deleted when all queues have finished using it
 			0,//internal: if set the exchange may not be used directly by publishers
 			amqp_empty_table);
-	die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange for reply");
+	die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange:");
 
 	mqclient_declare_queue_and_bind(conn, exchange, unicast);
-	mqclient_declare_queue_and_bind(conn, exchange, BINDKEY_BROADCAST);
+	//mqclient_declare_queue_and_bind(conn, exchange, BINDKEY_BROADCAST);
 
 	return conn;
 }
 
-amqp_envelope_t *mqclient_consume_message(amqp_connection_state_t conn){
+amqp_envelope_t *mqclient_consume_topic(amqp_connection_state_t conn){
 	/* amqp_connection_state_t conn = (amqp_connection_state_t )user_data; */
 	amqp_rpc_reply_t res;
 	amqp_envelope_t *envelope;
+
+	envelope = calloc(1, sizeof(amqp_envelope_t));
 
 	amqp_maybe_release_buffers(conn);
 	res = amqp_consume_message(conn, envelope, NULL, 0);
@@ -116,13 +119,13 @@ amqp_envelope_t *mqclient_consume_message(amqp_connection_state_t conn){
 void mqclient_reply_rpc(amqp_connection_state_t conn, amqp_envelope_t *envelope)
 {
 	/* declare exchange */
-	amqp_exchange_declare(conn, 1, envelope->message.properties.correlation_id, amqp_empty_bytes,
+	/*amqp_exchange_declare(conn, 1, envelope->message.properties.correlation_id, amqp_empty_bytes,
 			1,//passive: for client to check whether an exchange exists
 			0,//durable: be purged if a rabbitmq server restarts
 			0,//auto_delete: the exchange is deleted when all queues have finished using it
 			0,//internal: if set the excnage may not be used directly by publishers
 			amqp_empty_table);
-	die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange for reply");
+	die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange for reply");*/
 
 	/* set properties */
 	amqp_basic_properties_t props;
@@ -136,35 +139,37 @@ void mqclient_reply_rpc(amqp_connection_state_t conn, amqp_envelope_t *envelope)
 	/* send the mesg (rpc reply) */
 	die_on_error(amqp_basic_publish(conn,
 				1,
-				envelope->message.properties.correlation_id,
-				envelope->message.properties.reply_to,
+				//envelope->message.properties.correlation_id,
+				//envelope->message.properties.reply_to,
+				amqp_cstring_bytes("reply"),
+				amqp_cstring_bytes("reply"),
 				0,
 				0,
 				&props,
-				amqp_cstring_bytes("rpc rely")),
+				amqp_cstring_bytes("rpc reply")),
 			"Publishing on reply rpc");
 	return ;
 }
 
-void mqclient_public_2direct(amqp_connection_state_t conn, amqp_envelope_t *envelope, char* send_str){
+void mqclient_public_direct(amqp_connection_state_t conn, amqp_envelope_t *envelope, char *routing_key, char* send_str){
 	char const *exchange;
 	char hostname[NAME_LEN];
 	int len;
 	char *ip;
-	char const *routing_key = "callback";
+	//char const *routing_key = "callback";
 
 	exchange = DIRECT_EXCHANGE;
 	gethostname(hostname, NAME_LEN-1);
 	len = 0;
 
-	/* declare exchange 'echo' */
+	/* discover direct exchange */
 	amqp_exchange_declare(conn, 1, amqp_cstring_bytes(exchange), amqp_empty_bytes,
 			1,//passive: for client to check whether an exchange exists
 			0,//durable: be purged if a rabbitmq server restarts
 			0,//auto_delete: the exchange is deleted when all queues have finished using it
 			0,//internal: if set the excnage may not be used directly by publishers
 			amqp_empty_table);
-	die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange for reply");
+	die_on_amqp_error(amqp_get_rpc_reply(conn), "Discovering exchange for reply");
 
 	/* set properties */
 	amqp_basic_properties_t props;

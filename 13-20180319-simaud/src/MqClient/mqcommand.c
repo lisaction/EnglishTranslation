@@ -39,15 +39,65 @@ static char* GetLocalIp(){
 	return NULL;
 }
 
+
 // the first CMD_LEN is command
-// the string is formatted like 001;
-int mqclient_get_command(char *data){
+// \"command\": \"001\"},
+static int mqclient_get_command(char *data){
+	int len=strlen(data);
 	char cmd[CMD_LEN+1];
 	memset(cmd,0,sizeof(cmd));
-	int c;
-	strncpy(cmd, data, CMD_LEN);
-	sscanf(cmd,"%d",&c);
+	int c, i, pos=0;
+	for (i=0;i<len;i++){
+		if (data[i]==':'){
+			pos=i;
+			break;
+		}
+	}
+
+	if (pos==0 || pos>=len)
+		return -1; //wrong string
+	pos=pos+3; //space and "
+	strncpy(cmd, data+pos, CMD_LEN);
+	if (sscanf(cmd,"%d",&c) < 1)
+		return -1;
 	return c;
+}
+
+//\{"msg_id\": \"feedback_request_5a062a1b-11ad-471f-bf95-31fcfbbbd11f\"
+//pos(:)=9
+static int mqclient_get_msgid(char *data, char *msg_id, int len){
+	int i, pos=0;
+	for (i=0;i<len;i++)
+		if (data[i]==':'){
+			pos=i;
+			break;
+		}
+
+	if (pos==0 || pos>=len)
+		return -1; //wrong string
+	pos=pos+3; //: space and "
+	strncpy(msg_id, data+pos, len-pos-1); // "
+	return 0;
+}
+
+/*data={\"msg_id\": \"feedback_request_5a062a1b-11ad-471f-bf95-31fcfbbbd11f\", \"command\": \"001\"}*/
+//pos(,)=66
+int mqclient_parse_msg(char *data, char *msg_id){
+	int i, len, pos;
+	len = strlen(data);
+
+	for (i=0;i<len;i++){
+		if (data[i] == ',')
+			break;
+	}
+	if (i<len){ //find','
+		pos = i;
+	}
+	else { // no ','
+		return -1;
+	}
+	mqclient_get_msgid(data, msg_id, pos);
+	return mqclient_get_command(data+pos+2); //, and space
 }
 
 /* 0 for no reply
