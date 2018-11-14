@@ -9,17 +9,32 @@
 int mqclient_handle_message(amqp_connection_state_t conn,
 		amqp_envelope_t *envelope){
 	int cmd, rv;
-	char *send_str;
-	char *data = calloc((int) envelope->message.body.len+1 ,sizeof(char));
-	char msgid[200];
+	const int len_of_reply=250;
+	char *send_str, *data, msgid[200];
+
+	/* get data */
+	data = calloc((int) envelope->message.body.len+1 ,sizeof(char));
+	if (data == NULL){
+		fprintf(stderr, "Error: No space left.\n");
+		return -1;
+	}
 	strncpy(data, (char *)envelope->message.body.bytes, (int) envelope->message.body.len);
+	printf("Get data: %s.\n", data);
+
+	/* create the responding string */
+	send_str = calloc (len_of_reply, sizeof(char));
+	if (send_str == NULL){
+		fprintf(stderr, "Error: No space left.\n");
+		free(data);
+		return -1;
+	}
 
 	// get command code
 	cmd = mqclient_parse_msg(data, msgid);
 	// dispatch
 	switch(cmd){
-	case 0: //read
-		rv = op_cmd0(data+CMD_LEN+1, send_str);
+	case 0: //get host list
+		rv = op_cmd0(send_str);
 		break;
 	case 1: //delete
 		rv = op_cmd1(data+CMD_LEN+1);
@@ -35,11 +50,10 @@ int mqclient_handle_message(amqp_connection_state_t conn,
 		fprintf(stderr, "Warning: Unknown command.\n");
 	}
 
-	//if (rv == 2)
-	mqclient_public_direct(conn, envelope, msgid, "rpc reply");
+	if (rv == 2)
+		mqclient_public_direct(conn, envelope, msgid, send_str);
 
-	if (send_str)
-		free(send_str);
+	free(send_str);
 	free(data);
 	return 1;
 }

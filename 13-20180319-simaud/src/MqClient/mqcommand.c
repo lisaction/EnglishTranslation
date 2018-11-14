@@ -11,6 +11,8 @@
 #include "src/AuthServer/simaudruleinterpret.h"
 #include "mqcommand.h"
 
+#define NAME_LEN 100
+
 /* utils : get local ip address */
 static char* GetLocalIp(){
 	int MAXINTERFACES=16;
@@ -39,91 +41,64 @@ static char* GetLocalIp(){
 	return NULL;
 }
 
-
-// the first CMD_LEN is command
-// \"command\": \"001\"},
-static int mqclient_get_command(char *data){
-	int len=strlen(data);
-	char cmd[CMD_LEN+1];
-	memset(cmd,0,sizeof(cmd));
-	int c, i, pos=0;
-	for (i=0;i<len;i++){
-		if (data[i]==':'){
-			pos=i;
-			break;
-		}
-	}
-
-	if (pos==0 || pos>=len)
-		return -1; //wrong string
-	pos=pos+3; //space and "
-	strncpy(cmd, data+pos, CMD_LEN);
-	if (sscanf(cmd,"%d",&c) < 1)
-		return -1;
-	return c;
-}
-
-//\{"msg_id\": \"feedback_request_5a062a1b-11ad-471f-bf95-31fcfbbbd11f\"
-//pos(:)=9
-static int mqclient_get_msgid(char *data, char *msg_id, int len){
-	int i, pos=0;
-	for (i=0;i<len;i++)
-		if (data[i]==':'){
-			pos=i;
-			break;
-		}
-
-	if (pos==0 || pos>=len)
-		return -1; //wrong string
-	pos=pos+3; //: space and "
-	strncpy(msg_id, data+pos, len-pos-1); // "
-	return 0;
+void GetHostname(char *localhostname){
+	gethostname(localhostname, NAME_LEN-1);
 }
 
 /*data={\"msg_id\": \"feedback_request_5a062a1b-11ad-471f-bf95-31fcfbbbd11f\", \"command\": \"001\"}*/
-//pos(,)=66
 int mqclient_parse_msg(char *data, char *msg_id){
-	int i, len, pos;
+	int i, j, len;
+	int s, e, c;
 	len = strlen(data);
+	char t[5][100]; //only 2 pair
 
+	s = -1;
+	j=0;
 	for (i=0;i<len;i++){
-		if (data[i] == ',')
-			break;
+		if (data[i] == '\"'){
+			if (s == -1)
+				s = i+1;
+			else {
+				e = i-1; //find a word
+				strncpy(t[j], data+s, e-s+1);
+				t[j++][e-s+1] = '\0';
+				s = -1;
+			}
+		}
 	}
-	if (i<len){ //find','
-		pos = i;
+
+	if (strcmp(t[0], "msg_id") == 0){
+		i=1;
+		j=3;
 	}
-	else { // no ','
+	else {
+		i=3;
+		j=1;
+	}
+	strncpy(msg_id, t[i], strlen(t[1]));
+	if (sscanf(t[j],"%d",&c) < 1)
 		return -1;
-	}
-	mqclient_get_msgid(data, msg_id, pos);
-	return mqclient_get_command(data+pos+2); //, and space
+	return c;
 }
 
 /* 0 for no reply
  * 1 for rpc reply
  * 2 for direct reply */
-/* 000: read rule configuration */
-int op_cmd0(char *msg, char *send_str){
-	// cmd1 is return all configuration to controller
-	/* create the respond string */
-/*	memset(reply_str, 0, sizeof(reply_str));
+/* 000: get host list */
+int op_cmd0(char *send_str){
+	// cmd0 return ip and hostname to controller
+
+	char *ip;
+	char hostname[NAME_LEN];
+
 	// hostname;
-	strncpy(reply_str, hostname, strlen(hostname));
-	strcat(reply_str, ";");
-	len = strlen(hostname)+1;
+	GetHostname(hostname);
 	// ip;
 	ip = GetLocalIp();
-	strncat(reply_str, ip, strlen(ip));
-	strcat(reply_str,";");
-	len = len + strlen(ip) + 1;
-	// cmd
-	strcat(reply_str, "001;\n");
-	len = len + 5;
-	// rule
-	simaud_print_conf_tostr(reply_str + len);
-	printf("i'm the reply_str:\n%s", reply_str);*/
-	send_str = "i'm op_cmd1\n";
+
+	/*{\"hostname\": \"lin-virtual-machine\", \"ip\": \"127.0.0.1\"}*/
+	sprintf(send_str, "{\"hostname\": \"%s\", \"ip\": \"%s\"}", hostname, ip);
+	printf("i'm the reply_str: %s \n", send_str);
 	return 2;
 }
 

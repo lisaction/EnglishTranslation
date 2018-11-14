@@ -92,7 +92,7 @@ amqp_connection_state_t mqclient_init_conn (){
 	die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange:");
 
 	mqclient_declare_queue_and_bind(conn, exchange, unicast);
-	//mqclient_declare_queue_and_bind(conn, exchange, BINDKEY_BROADCAST);
+	mqclient_declare_queue_and_bind(conn, exchange, BINDKEY_BROADCAST);
 
 	return conn;
 }
@@ -151,15 +151,14 @@ void mqclient_reply_rpc(amqp_connection_state_t conn, amqp_envelope_t *envelope)
 	return ;
 }
 
-void mqclient_public_direct(amqp_connection_state_t conn, amqp_envelope_t *envelope, char *routing_key, char* send_str){
+void mqclient_public_direct(amqp_connection_state_t conn, amqp_envelope_t *envelope,
+		char *routing_key, char* send_str){
 	char const *exchange;
-	char hostname[NAME_LEN];
 	int len;
 	char *ip;
 	//char const *routing_key = "callback";
 
 	exchange = DIRECT_EXCHANGE;
-	gethostname(hostname, NAME_LEN-1);
 	len = 0;
 
 	/* discover direct exchange */
