@@ -10,8 +10,7 @@
 #include "simauduserif.h"
 #include "simaudkernelif.h"
 #include "simaudruleinterpret.h"
-#include "simaudrulefile.h"
-#include "simaudrequest.h"
+#include "simaudauthif.h"
 
 static int max (int a, int b){
 	return a>b?a:b;
@@ -20,39 +19,6 @@ static int max (int a, int b){
 void on_sigexit(int iSigNum){
 	void simaud_delete_socketlink();
 	exit(0);
-}
-
-static int simaud_compare_rule(Request *req){
-	int res=100, rv;
-	FILE *fp;
-	char line[RULE_LEN+1];
-	Rule *r;
-	if (!(fp=simaud_open_rule_file()))
-		return -1;
-
-	/* End of the file */
-	if (feof(fp)){
-		return -1;
-	}
-	/* read line */
-	if ((rv=simaud_read_line(line, fp))<0){
-		simaud_close_file(fp);
-		return -1;
-	}
-	while (rv>0){
-		/* rule regulator */
-		r=simaud_create_rule(line);
-		if (req_match_rule(req,r))
-			res=r->res<res?r->res:res; //select the small one
-		free(r);
-		rv=simaud_read_line(line, fp);
-	}
-
-	simaud_close_file(fp);
-	if (res<100) //there is matched rule
-		return res;
-	else return 0; //no matched rule
-
 }
 
 static void simaud_authorize_userspace(int fd){
@@ -70,7 +36,7 @@ static void simaud_authorize_userspace(int fd){
 		return;
 	}
 
-	/* the "recvBuff" look like: actino_id;p1;v1;p2;v2; */
+	/* the "recvBuff" look like: action_id;p1;v1;p2;v2; */
 	req = simaud_create_req(recvBuff);
 
 	/* compare*/

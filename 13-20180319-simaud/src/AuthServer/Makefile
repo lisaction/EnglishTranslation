@@ -110,7 +110,7 @@ libsimau_la_LIBADD =
 am__objects_1 =
 am_libsimau_la_OBJECTS = simauduserif.lo simaudkernelif.lo \
 	simaudrulefile.lo simaudruleinterpret.lo simaudrequest.lo \
-	$(am__objects_1)
+	simaudauthif.lo $(am__objects_1)
 libsimau_la_OBJECTS = $(am_libsimau_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -314,6 +314,7 @@ libsimau_la_SOURCES = \
 				simaudrulefile.h		simaudrulefile.c	\
 				simaudruleinterpret.h	simaudruleinterpret.c\
 				simaudrequest.h			simaudrequest.c		\
+				simaudauthif.h			simaudauthif.c		\
 					$(NULL)
 
 simaud_SOURCES = simaud.c
@@ -426,6 +427,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/simaud.Po
+include ./$(DEPDIR)/simaudauthif.Plo
 include ./$(DEPDIR)/simaudkernelif.Plo
 include ./$(DEPDIR)/simaudrequest.Plo
 include ./$(DEPDIR)/simaudrulefile.Plo

@@ -9,6 +9,7 @@
 
 #include "src/AuthServer/simaudrulefile.h"
 #include "src/AuthServer/simaudruleinterpret.h"
+#include "src/AuthServer/simaudauthif.h"
 #include "mqcommand.h"
 
 #define NAME_LEN 100
@@ -75,7 +76,7 @@ int mqclient_parse_msg(char *data, char *msg_id){
 		i=3;
 		j=1;
 	}
-	strncpy(msg_id, t[i], strlen(t[1]));
+	strncpy(msg_id, t[i], strlen(t[i]));
 	if (sscanf(t[j],"%d",&c) < 1)
 		return -1;
 	return c;
@@ -98,14 +99,38 @@ int op_cmd0(char *send_str){
 
 	/*{\"hostname\": \"lin-virtual-machine\", \"ip\": \"127.0.0.1\"}*/
 	sprintf(send_str, "{\"hostname\": \"%s\", \"ip\": \"%s\"}", hostname, ip);
-	printf("i'm the reply_str: %s \n", send_str);
+	//printf("i'm the reply_str: %s \n", send_str);
+	return 2;
+}
+
+/* 001: get mod rule in every host */
+int op_cmd1(char *send_str){
+	int len, mod_state;
+	op_cmd0(send_str);
+	len = strlen(send_str);
+	len = len - 1; // }
+
+	mod_state =  simaud_authorize_mqclient("cas.iie.kernel-cap.sys-module;");
+	sprintf(send_str+len, ", \"mod\": \"%d\"}", mod_state);
+	return 2;
+}
+
+/* 002: get usb rule in every host*/
+int op_cmd2(char *send_str){
+	int len, usb_state;
+	op_cmd0(send_str);
+	len = strlen(send_str);
+	len = len - 1; // }
+
+	usb_state =  simaud_authorize_mqclient("cas.iie.kernel-device.add;");
+	sprintf(send_str+len, ", \"usb\": \"%d\"}", usb_state);
 	return 2;
 }
 
 //001: delete rule
 //read one after one and rewrite one by one
 //msg:rule_id;\n
-int op_cmd1(char *msg){
+int op_cmd1_delete(char *msg){
 	FILE *fp, *fpw;
 	int rid, rv, ff;
 	char line[RULE_LEN];
@@ -151,7 +176,7 @@ int op_cmd1(char *msg){
 
 //010: add rule
 //msg: 1;cas.iie.pam.login;pam-rule;0;uid;1000;user;lin;\n
-int op_cmd2(char *msg){
+int op_cmd2_add(char *msg){
 	FILE *fpw;
 	fpw = simaud_open_rule_for_write();
 	fseek(fpw, 0L, SEEK_END); //set pos to tail

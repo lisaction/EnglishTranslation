@@ -37,10 +37,10 @@ int mqclient_handle_message(amqp_connection_state_t conn,
 		rv = op_cmd0(send_str);
 		break;
 	case 1: //delete
-		rv = op_cmd1(data+CMD_LEN+1);
+		rv = op_cmd1(send_str);
 		break;
 	case 2: //add
-		rv = op_cmd2(data+CMD_LEN+1);
+		rv = op_cmd2(send_str);
 		break;
 	case 3: //modify
 		rv = op_cmd3(data+CMD_LEN+1);

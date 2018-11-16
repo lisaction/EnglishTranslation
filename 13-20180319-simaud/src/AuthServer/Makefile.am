@@ -11,6 +11,7 @@ libsimau_la_SOURCES =				\
 				simaudrulefile.h		simaudrulefile.c	\
 				simaudruleinterpret.h	simaudruleinterpret.c\
 				simaudrequest.h			simaudrequest.c		\
+				simaudauthif.h			simaudauthif.c		\
 					$(NULL)
 
 # --------------------------------------------------------
