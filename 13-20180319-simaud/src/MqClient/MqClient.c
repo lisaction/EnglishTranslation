@@ -9,6 +9,7 @@
 int mqclient_handle_message(amqp_connection_state_t conn,
 		amqp_envelope_t *envelope){
 	int cmd, rv;
+	char state[200], name[200];
 	const int len_of_reply=250;
 	char *send_str, *data, msgid[200];
 
@@ -30,20 +31,38 @@ int mqclient_handle_message(amqp_connection_state_t conn,
 	}
 
 	// get command code
-	cmd = mqclient_parse_msg(data, msgid);
+	cmd = mqclient_parse_msg(data, msgid, state, name);
 	// dispatch
 	switch(cmd){
 	case 0: //get host list
 		rv = op_cmd0(send_str);
 		break;
-	case 1: //delete
+	case 1: //get mod rule in every host
 		rv = op_cmd1(send_str);
 		break;
-	case 2: //add
+	case 2: //get usb rule in every host
 		rv = op_cmd2(send_str);
 		break;
-	case 3: //modify
-		rv = op_cmd3(data+CMD_LEN+1);
+	case 3: //get user list in this host
+		rv = op_cmd3(send_str);
+		break;
+	case 4: //get mod state
+		rv = op_cmd4(send_str);
+		break;
+	case 5: //get usb state
+		rv = op_cmd5(send_str);
+		break;
+	case 6: //update mod state
+		rv = op_cmd6(state);
+		break;
+	case 7: //update usb state
+		rv = op_cmd7(state);
+		break;
+	case 8: //update user state
+		rv = op_cmd8(name, state);
+		break;
+	case 9: //delete user
+		rv = op_cmd9(name);
 		break;
 	default:
 		rv = -1;

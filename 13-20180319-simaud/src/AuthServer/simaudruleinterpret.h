@@ -27,5 +27,6 @@ int get_colon_pos(int num, char *str);
 /* RULE */
 Rule *simaud_create_rule(char *str);
 void simaud_delete_rule(Rule *r);
+void simaud_print_rule(Rule *r, char *rule);
 
 #endif

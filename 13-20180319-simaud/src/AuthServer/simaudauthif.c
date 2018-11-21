@@ -4,6 +4,16 @@
 #include "simaudrulefile.h"
 #include "simaudauthif.h"
 
+// one para - a
+// two para - b
+bool simaud_compare_user(Rule *a, Rule *b){
+	if (!a->head || !b->head)
+		return -1;
+	if (strcmp(b->head->key, "user") == 0)
+		return (strcmp(b->head->value, a->head->value)==0);
+	else return (strcmp(b->head->next->value, a->head->value)==0);
+}
+
 int simaud_compare_rule(Request *req){
 	int res=100, rv;
 	FILE *fp;

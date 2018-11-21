@@ -107,3 +107,21 @@ void simaud_delete_rule(Rule *r){
 		free(r);
 	}
 }
+
+void simaud_print_rule(Rule *r, char *rule){
+	//1;cas.iie.pam.login;pam-rule;0;uid;1000;user;lin;\n
+	int len;
+	Parameter *p;
+
+	memset(rule, 0 , sizeof(rule));
+	sprintf(rule, "%d;%s;%s;%d;", r->id, r->action_id, r->des, r->res);
+
+	p = r->head;
+	while (p){
+		len = strlen(rule);
+		sprintf(rule+len, "%s;%s;", p->key, p->value);
+		p = p->next;
+	}
+
+	strcat(rule, "\n");
+}
