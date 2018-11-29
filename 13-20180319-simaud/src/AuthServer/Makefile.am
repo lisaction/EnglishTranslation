@@ -1,6 +1,8 @@
 # --------------------------------------------------------
 
 NULL =
+
+DEFS +=  -fno-stack-protector
 # --------------------------------------------------------
 
 noinst_LTLIBRARIES=libsimau.la
@@ -17,7 +19,6 @@ libsimau_la_SOURCES =				\
 # --------------------------------------------------------
 bin_PROGRAMS = simaud
 simaud_SOURCES = simaud.c
-
 simaud_LDADD = libsimau.la
 
 # --------------------------------------------------------

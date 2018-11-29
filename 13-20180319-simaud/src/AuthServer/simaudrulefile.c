@@ -74,7 +74,15 @@ int simaud_read_line(char *line, FILE *fp){
 	/* clear error before read */
 	clearerr(fp);
 	/* Rule regulator will verify the rule for us */
-	fgets(line, RULE_LEN, fp);
+	if (!fgets(line, RULE_LEN, fp)){
+		/* no str in line */
+		return -1;
+	}
+	if (strlen(line) < 3){
+		/* too short to be a valid string */
+		return -1;
+	}
+
 	/* error when reading */
 	if (ferror(fp)){
 		fprintf (stderr, "Error: Read rule from file.\n");

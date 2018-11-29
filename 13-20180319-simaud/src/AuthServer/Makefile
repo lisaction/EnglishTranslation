@@ -201,7 +201,7 @@ CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DHAVE_CONFIG_H
+DEFS = -DHAVE_CONFIG_H -fno-stack-protector
 DEPDIR = .deps
 DLLTOOL = false
 DSYMUTIL = 

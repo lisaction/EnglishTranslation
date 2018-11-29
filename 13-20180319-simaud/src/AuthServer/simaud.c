@@ -16,7 +16,7 @@ static int max (int a, int b){
 	return a>b?a:b;
 }
 
-void on_sigexit(int iSigNum){
+static void on_sigexit(int iSigNum){
 	void simaud_delete_socketlink();
 	exit(0);
 }
@@ -50,7 +50,7 @@ static void simaud_authorize_userspace(int fd){
 	free(req);
 }
 
-void simaud_authorize_kernel(int nlfd){
+static void simaud_authorize_kernel(int nlfd){
 	char data[RULE_LEN];
 	int len, num, seq, r;
 	char action_id[LEN_OF_UNIT];
@@ -70,14 +70,14 @@ void simaud_authorize_kernel(int nlfd){
 	num = 0;
 	if (req) {
 		num = simaud_compare_rule(req);
+		/* print message */
+		printf("*INFO*: Request %s asks for authorization. Result:%d.\n", req->action_id, num);
+		free(req);
 	}
 	if (num == 1)
 		send_to_kernel(nlfd,2,seq,1);
 	else send_to_kernel(nlfd,2,seq,0);
-
-	/* print message */
-	printf("*INFO*: Request %s asks for authorization. Result:%d.\n", req->action_id, num);
-	free(req);
+	return;
 }
 
 

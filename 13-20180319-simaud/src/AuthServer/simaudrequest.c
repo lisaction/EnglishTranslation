@@ -37,6 +37,7 @@ Request *simaud_create_req(char *str){
 
 	if (pos == len){
 		/* no parameters */
+		r->head = NULL;
 		return r;
 	}
 

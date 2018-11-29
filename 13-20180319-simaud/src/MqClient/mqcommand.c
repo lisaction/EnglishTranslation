@@ -249,7 +249,7 @@ int op_cmd3(char *send_str){
 				strcpy(uid, r->head->value);
 				strcpy(name, r->head->next->value);
 			}
-			sprintf(send_str+len, "{\"user\": \"%s\", \"uid\": \"%s\"}, ", name, uid);
+			sprintf(send_str+len, "{\"user\": \"%s\", \"uid\": \"%s\", \"state\": %d}, ", name, uid, r->res);
 			len = strlen(send_str);
 		}
 		free(r);
@@ -259,7 +259,7 @@ int op_cmd3(char *send_str){
 	simaud_close_file(fp);
 	len = len - 2; // , and space
 	send_str[len] = ']';
-	send_str[len+1] = '\0';
+	send_str[len + 1] = '\0';
 	return 2;
 }
 

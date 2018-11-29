@@ -83,9 +83,12 @@ Request *create_req_for_kernel(char *action_id, char *arg_msg){
 
 	//joint the string to:
 	//action_id;key;value;key;value;....;
-	strncpy(str, action_id, sizeof(str));
+	strncpy(str, action_id, strlen(action_id));
 	strcat(str,";");
 
+	//create parameters for kernel
+	// I've remove the paremeters
+	/*
 	num = 0;
 	//TODO: edge check
 	len = strlen(arg_msg);
@@ -98,11 +101,12 @@ Request *create_req_for_kernel(char *action_id, char *arg_msg){
 			}
 			else num++;
 			s=pos+1;
-			/* pos=+1; */
+			// pos=+1;
 		}
-	}
+	}*/
 
-	printf ("str=%s\n",str);
+	strcat(str, "\n");
+	printf ("str=%s",str);
 	return simaud_create_req(str);
 }
 

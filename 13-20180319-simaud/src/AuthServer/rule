@@ -1,4 +1,4 @@
+5;cas.iie.kernel-cap.sys-module;kernel-module-rule;0;
 4;cas.iie.pam.login;pam-rule;0;user;kocreal;uid;2000;
 3;cas.iie.kernel-device.add;usb-device-control;1;
-2;cas.iie.pam.login;pam-rule;1;user;lin;uid;1000;
-5;cas.iie.kernel-cap.sys-module;kernel-module-rule;1;5;cas.iie.kernel-cap.sys-module;kernel-module-rule;1;
+2;cas.iie.pam.login;pam-rule;0;user;lin;uid;1000;
